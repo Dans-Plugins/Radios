@@ -1,6 +1,6 @@
 name: Radios
 version: '${version}'
-main: dansplugins.radios.Radios
+main: com.dansplugins.radios.Radios
 api-version: '1.21'
 author: DanTheTechMan
 description: Receive-only broadcast radio: messages sent on a frequency are heard by every player holding a switched-on radio receiver tuned to it.
