@@ -1,0 +1,32 @@
+# Radios configuration. See CONFIG.md for what each key does.
+# Version of this file's layout; the plugin adds missing keys and never removes yours.
+config-version: 1
+
+receiver:
+  # Material of the receiver item. It is tagged so that an ordinary item of the same material is not a receiver.
+  material: CLOCK
+  # Frequency a freshly made receiver is tuned to.
+  default-frequency: 100.0
+  # Whether players may craft receivers. When false, only /radios give hands them out.
+  craftable: true
+
+frequency:
+  # Lowest and highest frequency a receiver can be tuned to, and the step between them.
+  min: 88.0
+  max: 108.0
+  step: 0.1
+
+broadcast:
+  # world: a broadcast is heard only in the world it was sent from (console broadcasts go to every world).
+  # server: a broadcast is heard in every world.
+  scope: world
+
+messages:
+  # Placeholders: {frequency}, {message}
+  broadcast-format: "&8[&6Radio {frequency}&8] &f{message}"
+  receiver-on: "&aRadio on. Tuned to &f{frequency}&a."
+  receiver-off: "&7Radio off."
+  tuned: "&aTuned to &f{frequency}&a."
+  not-holding-receiver: "&cHold a radio receiver first."
+  invalid-frequency: "&cFrequency must be between {min} and {max}."
+  no-permission: "&cYou do not have permission to do that."

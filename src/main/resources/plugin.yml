@@ -1,0 +1,27 @@
+name: Radios
+version: '${version}'
+main: dansplugins.radios.Radios
+api-version: '1.21'
+author: DanTheTechMan
+description: Receive-only broadcast radio. Messages sent on a frequency are heard by every player holding a switched-on radio receiver tuned to it.
+website: https://github.com/Dans-Plugins/Radios
+
+commands:
+  radios:
+    description: Radios commands. Run '/radios help' for a list.
+    usage: /<command> help
+    aliases: [radio]
+
+permissions:
+  radios.use:
+    description: Carry, switch on and tune a radio receiver.
+    default: true
+  radios.broadcast:
+    description: Broadcast a message on a frequency.
+    default: op
+  radios.admin:
+    description: Give receivers and reload the configuration.
+    default: op
+    children:
+      radios.use: true
+      radios.broadcast: true
