@@ -1,33 +1,37 @@
 package dansplugins.radios;
 
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
+import dansplugins.radios.commands.HelpSubcommand;
+import dansplugins.radios.commands.RadiosCommand;
+import dansplugins.radios.commands.ReloadSubcommand;
+import dansplugins.radios.config.ConfigService;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
- * Plugin entry point.
- *
- * <p>This is the scaffold: it loads the default configuration and answers {@code /radios help}.
- * The behaviour described in MVP.md is built on top of it, in the packages laid out in ARCHITECTURE.md.
+ * Plugin entry point. Constructs and registers; the behaviour lives in the packages laid out in
+ * ARCHITECTURE.md.
  */
 public final class Radios extends JavaPlugin {
 
+    private ConfigService configService;
+
     @Override
     public void onEnable() {
-        saveDefaultConfig();
+        configService = new ConfigService(this);
+        configService.load();
+
+        RadiosCommand command = new RadiosCommand(configService);
+        command.register(new HelpSubcommand(configService, () -> command, getDescription().getVersion()))
+                .register(new ReloadSubcommand(configService));
+        PluginCommand pluginCommand = getCommand("radios");
+        pluginCommand.setExecutor(command);
+        pluginCommand.setTabCompleter(command);
+
         getLogger().info("Radios " + getDescription().getVersion() + " enabled.");
     }
 
     @Override
     public void onDisable() {
         getLogger().info("Radios disabled.");
-    }
-
-    @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        sender.sendMessage("Radios " + getDescription().getVersion());
-        sender.sendMessage("/" + label + " help - show this message");
-        sender.sendMessage("See https://github.com/Dans-Plugins/Radios for the roadmap.");
-        return true;
     }
 }

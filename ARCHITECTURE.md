@@ -22,7 +22,7 @@ The version lives only in `build.gradle.kts`; `plugin.yml` reads it through reso
 dansplugins.radios
 ├── Radios                plugin entry point: wires everything below, nothing else
 ├── api/                  RadiosApi (interface, registered with the ServicesManager), RadioBroadcastEvent
-├── config/               typed access to config.yml (PluginConfig) and message formatting (Messages)
+├── config/               ConfigService (owns the current PluginConfig + Messages, (re)loads them), PluginConfig (typed, immutable), Messages (formatting)
 ├── items/                ItemTags (namespaced keys), ReceiverItem (create, read state, write state, refresh lore), RecipeRegistrar
 ├── frequency/            Frequency (value type, canonical form), Band (min/max/step validation)
 ├── broadcast/            Broadcast (record), Audience (pure: given inventories, who hears F), Broadcaster (fires the event, resolves audience, delivers)
@@ -102,9 +102,11 @@ A consumer depends on Radios with `softdepend: [Radios]` and looks the service u
 
 ## Configuration
 
-`config/PluginConfig` reads `config.yml` once per (re)load into a typed object; nothing else calls `getConfig()`. On load, missing keys are added from the bundled default (`saveDefaultConfig`, then `options().copyDefaults(true)` + `saveConfig()`), and a `config-version` older than the plugin's is migrated key by key with a log line per change. Keys are never removed.
+`config/ConfigService.load()` runs on enable and on `/radios reload`: `saveDefaultConfig` writes the bundled file if absent, `reloadConfig` re-reads it, `options().copyDefaults(true)` + `saveConfig()` add any missing keys from the bundled defaults, and `config/PluginConfig.from(...)` turns the result into a typed, immutable object. Nothing else calls `getConfig()`, and every read uses the one-argument getters so a key an operator deleted still falls through to the bundled default (the two-argument getters ignore jar defaults). Keys are never removed. A `config-version` newer than `PluginConfig.CURRENT_VERSION` is logged and loaded as far as it is understood; when a version 2 layout exists, older files are migrated key by key with a log line per change.
 
-The material is validated on load; an invalid material logs a warning and falls back to the bundled default rather than disabling the plugin. A band where `min > max` or `step <= 0` is rejected the same way.
+Values are validated on load and replaced with a logged warning rather than disabling the plugin: an unknown, air, or legacy material falls back to the bundled default; a band where `min > max` or `step <= 0` falls back to the bundled band; a `default-frequency` outside the band falls back to the band's minimum; an unknown `broadcast.scope` falls back to `world`. `Material#isItem`/`#isAir` consult the server registry, so the material check is by identity (the three air constants and `isLegacy()`) and stays unit-testable.
+
+`config/Messages` formats `messages.*` — `&` colour codes and `{placeholder}` substitution — and renders a missing key as a visible `<missing message: key>` marker so documentation drift is noticed rather than hidden. Help descriptions are `messages.help.<subcommand>`.
 
 ## Persistence
 
@@ -114,11 +116,12 @@ None on the server. All receiver state is in item tags, which Minecraft persists
 
 | Area | How |
 |---|---|
-| `Frequency`, `Band` | JUnit, no mocks (`FrequencyTest` exists) |
+| `Frequency`, `Band` | JUnit, no mocks (`FrequencyTest`, `BandTest`) |
+| `PluginConfig`, `Messages` | JUnit against the bundled `config.yml` and an operator override file loaded as `YamlConfiguration` (`PluginConfigTest`, `MessagesTest`) |
 | `Audience` | JUnit over hand-built `ReceiverView` lists: held vs on vs off, duplicates, wrong frequency |
 | `Broadcaster` | JUnit with Mockito: mocked players/inventories, asserts who gets `sendMessage` and that a cancelled event delivers nothing |
 | `ReceiverItem` | JUnit with a mocked `ItemMeta`/`PersistentDataContainer`, asserting tag reads and writes and that lore is derived |
-| Commands | Mockito `CommandSender`/`Player` |
+| Commands | Mockito `CommandSender`/`Player` with the real `Messages` (`RadiosCommandTest`) |
 | Right-click, recipes, real delivery | The mineflayer scenario in MVP.md's acceptance criteria and the release-gates boot gate |
 
 ## Usage reporting

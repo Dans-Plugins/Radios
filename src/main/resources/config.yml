@@ -22,6 +22,17 @@ broadcast:
   scope: world
 
 messages:
+  # Placeholders: {version}
+  help-header: "&6&lRadios &7v{version}"
+  # Placeholders: {label}, {name}, {description}
+  help-entry: "&7/{label} {name} &f- &7{description}"
+  # One line per subcommand, shown by help.
+  help:
+    help: "Show this list."
+    reload: "Reload config.yml."
+  # Placeholders: {label}
+  unknown-subcommand: "&cUnknown subcommand. Try &f/{label} help&c."
+  reloaded: "&aRadios configuration reloaded."
   # Placeholders: {frequency}, {message}
   broadcast-format: "&8[&6Radio {frequency}&8] &f{message}"
   receiver-on: "&aRadio on. Tuned to &f{frequency}&a."

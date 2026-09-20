@@ -1,0 +1,13 @@
+# An operator file with an invalid material, an inverted band, an out-of-band default, a bad scope, and a message override.
+config-version: 1
+receiver:
+  material: NOT_A_MATERIAL
+  default-frequency: 200
+  craftable: false
+frequency:
+  min: 108.0
+  max: 88.0
+broadcast:
+  scope: galaxy
+messages:
+  receiver-off: "&7Click."
