@@ -6,7 +6,7 @@
 
 Receive-only broadcast radio: messages sent on a frequency are heard by every player holding a switched-on radio receiver tuned to it.
 
-The plugin is in early development. There is no release yet.
+The plugin is in early development. There is no release yet. The behaviour described above is not implemented on `main`: the plugin only logs a message when it is enabled and disabled, and it defines no commands, permissions, or configuration.
 
 ## Requirements
 
